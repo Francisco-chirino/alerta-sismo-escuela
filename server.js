@@ -31,8 +31,15 @@ app.get('/service-worker.js', (req, res) => {
 // Route to subscribe to notifications
 app.post('/subscribe', (req, res) => {
   const subscription = req.body;
-  subscriptions.push(subscription);
-  res.status(201).json({ message: 'Subscribed successfully' });
+  if (!subscription || !subscription.endpoint) {
+    return res.status(400).json({ message: 'Suscripción inválida' });
+  }
+  // Evitar suscripciones duplicadas
+  const exists = subscriptions.find(sub => sub.endpoint === subscription.endpoint);
+  if (!exists) {
+    subscriptions.push(subscription);
+  }
+  res.status(201).json({ message: 'Suscripción exitosa' });
 });
 
 const ADMIN_PASSWORD = 'admin123'; // Change this to a secure password

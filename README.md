@@ -1,58 +1,48 @@
 # Alerta Sismo
 
-Esta es una aplicación web para alertas de sismo, diseñada para un proyecto universitario. Permite a los usuarios suscribirse a notificaciones push y emitir alertas que se envían a todos los suscriptores.
-
-## Características
-
-- Suscripción a notificaciones push.
-- Botón para emitir alertas.
-- Notificaciones en tiempo real a todos los usuarios suscritos.
+Aplicación web para alertas de sismos con notificaciones push.
 
 ## Requisitos
 
-- Node.js (versión 14 o superior)
-- Navegador moderno que soporte Service Workers y Push API (Chrome, Firefox, etc.)
+- Node.js instalado
+- Navegador moderno con soporte para Service Workers y Push API
 
 ## Instalación
 
-1. Instala Node.js desde https://nodejs.org/
-2. Clona o descarga este proyecto.
-3. Abre una terminal en la carpeta del proyecto.
-4. Ejecuta `npm install` para instalar las dependencias.
-5. Ejecuta `npm start` para iniciar el servidor.
-
-## Configuración
-
-Antes de ejecutar, genera tus propias claves VAPID para las notificaciones push:
-
-1. Instala web-push globalmente: `npm install -g web-push`
-2. Genera claves: `web-push generate-vapid-keys`
-3. Reemplaza las claves en `server.js` y `public/app.js`:
-   - `publicKey` en ambos archivos.
-   - `privateKey` en `server.js`.
-   - `mailto` en `server.js` con tu email.
+1. Clonar el repositorio
+2. Ejecutar `npm install` para instalar dependencias
+3. Ejecutar `node server.js` para iniciar el servidor en http://localhost:3000
 
 ## Uso
 
-1. Abre http://localhost:3000 en tu navegador.
-2. Haz clic en "Suscribirse a Notificaciones" y permite las notificaciones.
-3. Una vez suscrito, aparecerá el botón "Emitir Alerta".
-4. Haz clic en "Emitir Alerta" para enviar una notificación a todos los suscriptores.
+- Abrir http://localhost:3000 en el navegador
+- Hacer clic en "Suscribirse a Notificaciones" y aceptar el permiso
+- Para emitir una alerta, hacer clic en "Emitir Alerta" e ingresar la contraseña de administrador
+
+## Pruebas manuales
+
+### Probar suscripción
+
+- Abrir la consola del navegador para ver mensajes de registro
+- Verificar que el service worker se registre correctamente
+- Verificar que la suscripción se realice sin errores
+
+### Probar envío de alerta
+
+- Desde el navegador, hacer clic en "Emitir Alerta" e ingresar la contraseña (por defecto: admin123)
+- Verificar que se reciba la notificación push en los dispositivos suscritos
+
+## Pruebas con curl en PowerShell
+
+Para enviar una alerta desde PowerShell, usar el siguiente comando (ajustar la URL si es necesario):
+
+```powershell
+$body = '{ "password": "admin123" }'
+Invoke-RestMethod -Uri http://localhost:3000/send-alert -Method POST -Body $body -ContentType "application/json"
+```
 
 ## Notas
 
-- En producción, usa una base de datos para almacenar las suscripciones en lugar de memoria.
-- Asegúrate de que el servidor esté accesible públicamente para que las notificaciones funcionen desde diferentes dispositivos.
-- Para un despliegue real, considera usar servicios como Firebase Cloud Messaging o un servidor dedicado.
-
-## Estructura del Proyecto
-
-- `server.js`: Servidor backend con Express.
-- `public/index.html`: Página principal.
-- `public/app.js`: Lógica del frontend para suscripciones y envío de alertas.
-- `public/service-worker.js`: Service Worker para manejar notificaciones push.
-- `public/styles.css`: Estilos de la aplicación.
-- `package.json`: Dependencias y scripts.
-"# alerta-sismo" 
-"# alerta-sismo" 
-"# alerta-sismo" 
+- Las notificaciones push requieren HTTPS en producción (localhost está permitido sin HTTPS)
+- Cambiar la contraseña de administrador en `server.js` para mayor seguridad
+- En producción, usar una base de datos para almacenar suscripciones en lugar de memoria

@@ -7,15 +7,15 @@ const statusText = document.getElementById('status');
 if ('serviceWorker' in navigator && 'PushManager' in window) {
   navigator.serviceWorker.register('service-worker.js')
     .then(registration => {
-      console.log('Service Worker registered', registration);
+      console.log('Service Worker registrado', registration);
       subscribeBtn.disabled = false;
     })
     .catch(err => {
-      console.error('Service Worker registration failed', err);
+      console.error('Error al registrar el Service Worker', err);
       statusText.textContent = 'Error al registrar el Service Worker.';
     });
 } else {
-  statusText.textContent = 'Push notifications no son soportadas en este navegador.';
+  statusText.textContent = 'Las notificaciones push no son soportadas en este navegador.';
   subscribeBtn.disabled = true;
 }
 
@@ -28,7 +28,7 @@ subscribeBtn.addEventListener('click', async () => {
       statusText.textContent = 'Permiso de notificaciones denegado.';
     }
   } catch (error) {
-    console.error('Error requesting notification permission', error);
+    console.error('Error al solicitar permiso de notificaciones', error);
     statusText.textContent = 'Error al solicitar permiso de notificaciones.';
   }
 });
@@ -51,7 +51,7 @@ alertBtn.addEventListener('click', () => {
       statusText.textContent = data.message;
     })
     .catch(err => {
-      console.error('Error sending alert', err);
+      console.error('Error al enviar la alerta', err);
       statusText.textContent = 'Error al enviar la alerta.';
     });
 });
@@ -59,7 +59,7 @@ alertBtn.addEventListener('click', () => {
 function urlBase64ToUint8Array(base64String) {
   const padding = '='.repeat((4 - base64String.length % 4) % 4);
   const base64 = (base64String + padding)
-    .replace(/\-/g, '+')
+    .replace(/-/g, '+')
     .replace(/_/g, '/');
 
   const rawData = window.atob(base64);
@@ -87,20 +87,25 @@ function subscribeUser() {
             'Content-Type': 'application/json'
           }
         })
-        .then(res => res.json())
+        .then(res => {
+          if (!res.ok) {
+            throw new Error('Error en la respuesta del servidor: ' + res.status);
+          }
+          return res.json();
+        })
         .then(data => {
           statusText.textContent = 'Suscripción exitosa.';
           subscribeBtn.style.display = 'none';
           alertBtn.style.display = 'inline-block';
         })
         .catch(err => {
-          console.error('Error saving subscription', err);
-          statusText.textContent = 'Error al guardar la suscripción.';
+          console.error('Error al guardar la suscripción', err);
+          statusText.textContent = 'Error al guardar la suscripción: ' + err.message;
         });
       })
       .catch(err => {
-        console.error('Error during subscription', err);
-        statusText.textContent = 'Error al suscribirse a las notificaciones.';
+        console.error('Error durante la suscripción', err);
+        statusText.textContent = 'Error al suscribirse a las notificaciones: ' + err.message;
       });
   });
 }
